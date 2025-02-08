@@ -1,0 +1,22 @@
+{
+  "name": "create-100xrepo",
+  "version": "1.0.0",
+  "description": "This project will have an inbuilt setup for building fullstack app",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "create-100xrepo": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "abdul basit khan",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "commander": "^13.1.0",
+    "fs-extra": "^11.3.0",
+    "inquirer": "^12.4.1",
+    "ora": "^8.2.0"
+  }
+}
