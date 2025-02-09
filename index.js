@@ -22,10 +22,10 @@ program
 
     const answers = await inquirer.prompt([
       {
-        type: "list",
-        name: "frontend",
-        message: "Which frontend do you want to use ?",
-        choices: ["None", "React", "Next.js", "Expo (React Native)"],
+        type: "checkbox",
+        name: "frontends",
+        message: "Select frontend frameworks to include:",
+        choices: ["React", "Next.js", "Expo (React Native)"],
       },
       {
         type: "confirm",
@@ -45,13 +45,6 @@ program
         message: "Which database do you want to use?",
         choices: ["None", "PostgreSQL (Prisma)"],
       },
-      // {
-      //   type: "list",
-      //   name: "packageManager",
-      //   message: "Which package manager do you want to use?",
-      //   choices: ["pnpm", "npm", "yarn"],
-      //   default: "pnpm",
-      // },
     ]);
 
     const targetPath = path.join(process.cwd(), projectName);
@@ -79,12 +72,15 @@ program
       }
     };
 
-    if (answers.frontend === "React")
-      addComponent("React App", "templates/with-react", "apps/");
-    if (answers.frontend === "Next.js")
-      addComponent("Next.js App", "templates/with-next", "apps/");
-    if (answers.frontend === "Expo (React Native)")
-      addComponent("Expo App", "templates/mobile", "apps/expo-app");
+    answers.frontends.forEach((frontend) => {
+      if (frontend === "React")
+        addComponent("React App", "templates/with-react", "apps/react-app");
+      if (frontend === "Next.js")
+        addComponent("Next.js App", "templates/with-next", "apps/next-app");
+      if (frontend === "Expo (React Native)")
+        addComponent("Expo App", "templates/with-expo", "apps/mobile");
+    });
+
     if (answers.httpServer)
       addComponent("HTTP Server", "templates/http-server", "apps/http-server");
     if (answers.wsServer)
@@ -95,20 +91,19 @@ program
         "templates/db/postgres",
         "packages/db"
       );
-    // if (answers.database === "MongoDB")
-    //   addComponent("MongoDB", "templates/db/mongodb", "packages/db");
+    // if (answers.database === "MongoDB") addComponent("MongoDB", "templates/db/mongodb", "packages/db/mongodb");
     // if (answers.database === "MySQL") addComponent("MySQL", "templates/db/mysql", "packages/db");
 
     const installSpinner = ora("📦 Installing dependencies...").start();
     try {
-      execSync(`cd ${projectName} && ${answers.packageManager} install`, {
+      execSync(`cd ${projectName} && pnpm install`, {
         stdio: "inherit",
       });
       installSpinner.succeed(chalk.green("✅ Dependencies installed."));
     } catch (err) {
       installSpinner.fail(
         chalk.red(
-          `❌ Failed to install dependencies using ${answers.packageManager}.`
+          `❌ Failed to install dependencies using pnpm.`
         )
       );
       console.error(chalk.yellow(err.message));
@@ -123,10 +118,12 @@ program
     console.log(chalk.green("  2. Run your development server:"));
     if (answers.httpServer)
       console.log(chalk.yellow("     pnpm dev - in apps/http-server"));
-    if (answers.frontend === "React")
+    if (answers.frontends.includes("React"))
       console.log(chalk.yellow("     pnpm dev - in apps/react-app"));
-    if (answers.frontend === "Next.js")
+    if (answers.frontends.includes("Next.js"))
       console.log(chalk.yellow("     pnpm dev - in apps/next-app"));
+    if (answers.frontends.includes("Expo (React Native)"))
+      console.log(chalk.yellow("     pnpm dev - in apps/expo-app"));
     console.log(chalk.green("  3. Start coding! 🚀"));
   });
 
