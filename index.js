@@ -4,8 +4,8 @@ import { execSync } from "child_process";
 import fs from "fs-extra";
 import { fileURLToPath } from "url";
 import path from "path";
-import ora from "ora"; // 🔄 Loading effect
-import chalk from "chalk"; // 🎨 Colored output
+import ora from "ora";
+import chalk from "chalk";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,27 +16,16 @@ const program = new Command();
 program
   .argument("<project-name>", "Name of the new Turbo Repo project")
   .action(async (projectName) => {
-    console.log(chalk.blue.bold(`\n🚀 Creating Turbo monorepo: ${projectName}...\n`));
+    console.log(
+      chalk.blue.bold(`\n🚀 Creating Turbo monorepo: ${projectName}...\n`)
+    );
 
-    // User choices
     const answers = await inquirer.prompt([
       {
-        type: "confirm",
-        name: "Next js",
-        message: "Do you want to include an React Js For Frontend?",
-        default: true,
-      },
-      {
-        type: "confirm",
-        name: "React Js",
-        message: "Do you want to include an Next js?",
-        default: true,
-      },
-      {
-        type: "confirm",
-        name: "React Native Expo",
-        message: "Do you want to include an React Native Expo project ?",
-        default: true,
+        type: "list",
+        name: "frontend",
+        message: "Which frontend do you want to use ?",
+        choices: ["None", "React", "Next.js", "Expo (React Native)"],
       },
       {
         type: "confirm",
@@ -56,11 +45,16 @@ program
         message: "Which database do you want to use?",
         choices: ["None", "PostgreSQL (Prisma)"],
       },
+      // {
+      //   type: "list",
+      //   name: "packageManager",
+      //   message: "Which package manager do you want to use?",
+      //   choices: ["pnpm", "npm", "yarn"],
+      //   default: "pnpm",
+      // },
     ]);
 
     const targetPath = path.join(process.cwd(), projectName);
-
-    // Step 1: Copy Turbo Repo template
     const setupSpinner = ora("Setting up Turbo Repo...").start();
     try {
       fs.copySync(templatePath, targetPath, {
@@ -70,91 +64,70 @@ program
       setupSpinner.succeed(chalk.green("✅ Turbo Repo template added."));
     } catch (err) {
       setupSpinner.fail(chalk.red("❌ Failed to add Turbo Repo template."));
-      console.error(err);
+      console.error(chalk.yellow(err.message));
       process.exit(1);
     }
 
-    // Step 2: Add selected components
-    if (answers["Next js"]) {
-      const httpSpinner = ora("Adding Next js ...").start();
+    const addComponent = (name, src, dest) => {
+      const spinner = ora(`Adding ${name}...`).start();
       try {
-        fs.copySync(
-          path.join(__dirname, "templates/web"),
-          path.join(targetPath, "apps/web")
-        );
-        httpSpinner.succeed(chalk.green("✅ Next js added."));
+        fs.copySync(path.join(__dirname, src), path.join(targetPath, dest));
+        spinner.succeed(chalk.green(`✅ ${name} added.`));
       } catch (err) {
-        httpSpinner.fail(chalk.red("❌ Failed to add Next js."));
-        console.error(err);
+        spinner.fail(chalk.red(`❌ Failed to add ${name}.`));
+        console.error(chalk.yellow(err.message));
       }
-    }
-    if (answers["React Js"]) {
-      const httpSpinner = ora("Adding React js ...").start();
-      try {
-        fs.copySync(
-          path.join(__dirname, "templates/with-react"),
-          path.join(targetPath, "apps/web")
-        );
-        httpSpinner.succeed(chalk.green("✅ React js added."));
-      } catch (err) {
-        httpSpinner.fail(chalk.red("❌ Failed to add React js."));
-        console.error(err);
-      }
-    }
-    if (answers.httpServer) {
-      const httpSpinner = ora("Adding HTTP Server...").start();
-      try {
-        fs.copySync(
-          path.join(__dirname, "templates/http-server"),
-          path.join(targetPath, "apps/http-server")
-        );
-        httpSpinner.succeed(chalk.green("✅ HTTP Server added."));
-      } catch (err) {
-        httpSpinner.fail(chalk.red("❌ Failed to add HTTP Server."));
-        console.error(err);
-      }
-    }
+    };
 
-    if (answers.wsServer) {
-      const wsSpinner = ora("Adding WebSocket Server...").start();
-      try {
-        fs.copySync(
-          path.join(__dirname, "templates/ws-server"),
-          path.join(targetPath, "apps/ws-server")
-        );
-        wsSpinner.succeed(chalk.green("✅ WebSocket Server added."));
-      } catch (err) {
-        wsSpinner.fail(chalk.red("❌ Failed to add WebSocket Server."));
-        console.error(err);
-      }
-    }
+    if (answers.frontend === "React")
+      addComponent("React App", "templates/with-react", "apps/");
+    if (answers.frontend === "Next.js")
+      addComponent("Next.js App", "templates/with-next", "apps/");
+    if (answers.frontend === "Expo (React Native)")
+      addComponent("Expo App", "templates/mobile", "apps/expo-app");
+    if (answers.httpServer)
+      addComponent("HTTP Server", "templates/http-server", "apps/http-server");
+    if (answers.wsServer)
+      addComponent("WebSocket Server", "templates/ws-server", "apps/ws-server");
+    if (answers.database === "PostgreSQL (Prisma)")
+      addComponent(
+        "PostgreSQL (Prisma)",
+        "templates/db/postgres",
+        "packages/db"
+      );
+    // if (answers.database === "MongoDB")
+    //   addComponent("MongoDB", "templates/db/mongodb", "packages/db");
+    // if (answers.database === "MySQL") addComponent("MySQL", "templates/db/mysql", "packages/db");
 
-    if (answers.database === "PostgreSQL (Prisma)") {
-      const prismaSpinner = ora("Adding Prisma with PostgreSQL...").start();
-      try {
-        fs.copySync(
-          path.join(__dirname, "templates/db/postgres"),
-          path.join(targetPath, "packages/db")
-        );
-        prismaSpinner.succeed(chalk.green("✅ PostgreSQL (Prisma) added."));
-      } catch (err) {
-        prismaSpinner.fail(chalk.red("❌ Failed to add PostgreSQL (Prisma)."));
-        console.error(err);
-      }
-    }
-
-    // Step 3: Install dependencies
     const installSpinner = ora("📦 Installing dependencies...").start();
     try {
-      execSync(`cd ${projectName} && pnpm install`, { stdio: "inherit" });
+      execSync(`cd ${projectName} && ${answers.packageManager} install`, {
+        stdio: "inherit",
+      });
       installSpinner.succeed(chalk.green("✅ Dependencies installed."));
     } catch (err) {
-      installSpinner.fail(chalk.red("❌ Failed to install dependencies."));
-      console.error(err);
+      installSpinner.fail(
+        chalk.red(
+          `❌ Failed to install dependencies using ${answers.packageManager}.`
+        )
+      );
+      console.error(chalk.yellow(err.message));
       process.exit(1);
     }
 
-    console.log(chalk.cyan(`\n🚀 Done! Your Turbo Repo is ready in ${projectName}\n`));
+    console.log(
+      chalk.cyan(`\n🚀 Done! Your Turbo Repo is ready in ${projectName}\n`)
+    );
+    console.log(chalk.magenta("📌 Next Steps:"));
+    console.log(chalk.green(`  1. cd ${projectName}`));
+    console.log(chalk.green("  2. Run your development server:"));
+    if (answers.httpServer)
+      console.log(chalk.yellow("     pnpm dev - in apps/http-server"));
+    if (answers.frontend === "React")
+      console.log(chalk.yellow("     pnpm dev - in apps/react-app"));
+    if (answers.frontend === "Next.js")
+      console.log(chalk.yellow("     pnpm dev - in apps/next-app"));
+    console.log(chalk.green("  3. Start coding! 🚀"));
   });
 
 program.parse();
