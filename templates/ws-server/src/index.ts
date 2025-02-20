@@ -1,5 +1,5 @@
 import {WebSocketServer} from "ws";
-import {client} from '@repo/db/client'
+import { client } from "@repo/postgres/client";
 const server = new WebSocketServer({port:8083})
 
 

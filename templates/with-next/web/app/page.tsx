@@ -1,18 +1,8 @@
 import React from "react";
-import { client } from "@repo/db/postgres";
-import { connectDB } from "@repo/mongodb";
+import { client } from "@repo/postgres/client";
 
-(async () => {
-  await connectDB();
-})();
-
-const Main = async () => {
-  const user = await client.user.findFirst();
-  return (
-    <div>
-      {user?.username}W{user?.password}
-    </div>
-  );
+const Home = async () => {
+  return <div>Home</div>;
 };
 
-export default Main;
+export default Home;

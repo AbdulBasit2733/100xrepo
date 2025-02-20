@@ -22,10 +22,10 @@ program
 
     const answers = await inquirer.prompt([
       {
-        type: "checkbox",
-        name: "frontends",
-        message: "Select frontend frameworks to include:",
-        choices: ["React", "Next.js", "Expo (React Native)"],
+        type: "confirm",
+        name: "nextJs",
+        message: "Do you want to include a Next.js app?",
+        default: true,
       },
       {
         type: "confirm",
@@ -40,10 +40,10 @@ program
         default: false,
       },
       {
-        type: "list",
+        type: "confirm",
         name: "database",
-        message: "Which database do you want to use?",
-        choices: ["None", "PostgreSQL (Prisma)"],
+        message: "Do you want to include PostgreSQL (Prisma)?",
+        default: true,
       },
     ]);
 
@@ -72,31 +72,25 @@ program
       }
     };
 
-    answers.frontends.forEach((frontend) => {
-      if (frontend === "React")
-        addComponent("React App", "templates/with-react", "apps/react-app");
-      if (frontend === "Next.js")
-        addComponent("Next.js App", "templates/with-next", "apps/next-app");
-      if (frontend === "Expo (React Native)")
-        addComponent("Expo App", "templates/with-expo", "apps/mobile");
-    });
-
+    if (answers.nextJs)
+      addComponent("Next.js App", "templates/with-next", "apps/next-app");
     if (answers.httpServer)
       addComponent("HTTP Server", "templates/http-server", "apps/http-server");
     if (answers.wsServer)
       addComponent("WebSocket Server", "templates/ws-server", "apps/ws-server");
-    if (answers.database === "PostgreSQL (Prisma)")
+    if (answers.database)
       addComponent(
         "PostgreSQL (Prisma)",
         "templates/db/postgres",
-        "packages/db"
+        "packages/postgres"
       );
-    // if (answers.database === "MongoDB") addComponent("MongoDB", "templates/db/mongodb", "packages/db/mongodb");
-    // if (answers.database === "MySQL") addComponent("MySQL", "templates/db/mysql", "packages/db");
 
     const installSpinner = ora("📦 Installing dependencies...").start();
     try {
       execSync(`cd ${projectName} && pnpm install`, {
+        stdio: "inherit",
+      });
+      execSync(`cd ${projectName}/packages/postgres && pnpm install && pnpx prisma generate`, {
         stdio: "inherit",
       });
       installSpinner.succeed(chalk.green("✅ Dependencies installed."));
@@ -118,12 +112,8 @@ program
     console.log(chalk.green("  2. Run your development server:"));
     if (answers.httpServer)
       console.log(chalk.yellow("     pnpm dev - in apps/http-server"));
-    if (answers.frontends.includes("React"))
-      console.log(chalk.yellow("     pnpm dev - in apps/react-app"));
-    if (answers.frontends.includes("Next.js"))
+    if (answers.nextJs)
       console.log(chalk.yellow("     pnpm dev - in apps/next-app"));
-    if (answers.frontends.includes("Expo (React Native)"))
-      console.log(chalk.yellow("     pnpm dev - in apps/expo-app"));
     console.log(chalk.green("  3. Start coding! 🚀"));
   });
 
