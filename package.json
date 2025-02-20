@@ -1,7 +1,7 @@
 {
   "name": "create-100xrepo",
   "version": "1.0.1",
-  "description": "This project will have an inbuilt setup for building fullstack app",
+  "description": "CLI to generate a fullstack monorepo with Turbo Repo",
   "type": "module",
   "main": "index.js",
   "bin": {
@@ -10,8 +10,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "abdul basit khan",
-  "license": "ISC",
+  "author": "Abdul Basit Khan",
+  "license": "MIT",
   "dependencies": {
     "chalk": "^5.4.1",
     "commander": "^13.1.0",
