@@ -73,7 +73,7 @@ program
     };
 
     if (answers.nextJs)
-      addComponent("Next.js App", "templates/with-next", "apps/next-app");
+      addComponent("Next.js App", "templates/with-next", "apps/");
     if (answers.httpServer)
       addComponent("HTTP Server", "templates/http-server", "apps/http-server");
     if (answers.wsServer)
