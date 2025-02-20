@@ -82,15 +82,12 @@ program
       addComponent(
         "PostgreSQL (Prisma)",
         "templates/db/postgres",
-        "packages/postgres"
+        "packages/db"
       );
 
     const installSpinner = ora("📦 Installing dependencies...").start();
     try {
       execSync(`cd ${projectName} && pnpm install`, {
-        stdio: "inherit",
-      });
-      execSync(`cd ${projectName}/packages/postgres && pnpm install && pnpx prisma generate`, {
         stdio: "inherit",
       });
       installSpinner.succeed(chalk.green("✅ Dependencies installed."));
@@ -104,11 +101,25 @@ program
       process.exit(1);
     }
 
+    if (answers.database) {
+      const prismaSpinner = ora("🔧 Setting up Prisma...").start();
+      try {
+        execSync(`cd ${projectName}/packages/db && pnpm install && pnpx prisma generate`, {
+          stdio: "inherit",
+        });
+        prismaSpinner.succeed(chalk.green("✅ Prisma setup completed."));
+      } catch (err) {
+        prismaSpinner.fail(chalk.red("❌ Failed to setup Prisma."));
+        console.error(chalk.yellow(err.message));
+        process.exit(1);
+      }
+    }
+
     console.log(
       chalk.cyan(`\n🚀 Done! Your Turbo Repo is ready in ${projectName}\n`)
     );
     console.log(chalk.magenta("📌 Next Steps:"));
-    console.log(chalk.green(`  1. cd ${projectName}`));
+    console.log(chalk.green(`  1. cd ${projectName} && pnpm install`));
     console.log(chalk.green("  2. Run your development server:"));
     if (answers.httpServer)
       console.log(chalk.yellow("     pnpm dev - in apps/http-server"));
