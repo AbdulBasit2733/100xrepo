@@ -14,13 +14,7 @@ A powerful CLI tool to quickly scaffold a Turbo Repo-based monorepo with optiona
 
 ## 📦 Installation
 
-You can install the package globally:
-
-```sh
-npm install -g create-100xrepo
-```
-
-Or use it directly via `npx`:
+use it directly via `npx`:
 
 ```sh
 npx create-100xrepo my-project
@@ -80,7 +74,7 @@ pnpm start
 ## 🔥 Contributing
 
 Feel free to open issues and submit pull requests on GitHub:
-[GitHub Repository](https://github.com/yourusername/create-100xrepo)
+[GitHub Repository](https://github.com/AbdulBasit2733/100xrepo)
 
 ## 📜 License
 
