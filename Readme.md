@@ -43,7 +43,10 @@ Depending on your selections, your monorepo will look something like this:
 ```
 my-turbo-app/
 ├── apps/
-│   ├── web/            # Frontend (ReaNext.js)
+│   ├── web/            # Frontend (React, Next.js)
+│   ├── mobile/         # React Native (Expo)
+│   ├── backend/        # Backend (Express)
+│   ├── ws-server/      # WebSocket server
 ├── packages/
 │   ├── db/             # Database setup (PostgreSQL/MongoDB)
 ├── turbo.json          # Turbo Repo config
