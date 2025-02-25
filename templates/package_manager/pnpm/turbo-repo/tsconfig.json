@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+      "baseUrl": ".", 
+      "paths": {
+        "@repo/ui": ["packages/ui"],
+        "@repo/typescript-config": ["packages/typescript-config"]
+      }
+    }
+  }
+  
